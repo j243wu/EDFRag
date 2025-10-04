@@ -1,11 +1,10 @@
 'use client';
 import Link from 'next/link';
-import { v4 as uuidv4 } from 'uuid';
 import { createChatIfMissing, setActiveSessionId } from '@/lib/storage';
 
 export function Sidebar({ open, onToggle }: { open: boolean; onToggle: () => void }) {
   const newChat = () => {
-    const id = uuidv4();
+    const id = crypto.randomUUID();
     createChatIfMissing(id);
     setActiveSessionId(id);
     window.location.href = '/';

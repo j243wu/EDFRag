@@ -1,6 +1,5 @@
 'use client';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import { ChatMessage } from '@/components/ChatMessage';
 import { SourceList } from '@/components/SourceList';
 import { createChatIfMissing, getActiveSessionId, getMessages, persistMessage, setActiveSessionId } from '@/lib/storage';
@@ -18,7 +17,7 @@ export default function Page() {
   useEffect(() => {
     let sid = getActiveSessionId();
     if (!sid) {
-      sid = uuidv4();
+      sid = crypto.randomUUID();
       createChatIfMissing(sid);
       setActiveSessionId(sid);
     }
