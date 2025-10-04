@@ -14,7 +14,8 @@ export default function ChatsPage() {
       <div className="space-y-3">
         {chats.length === 0 && <div className="text-neutral-400">No chats yet.</div>}
         {chats.map(c => {
-          const last = getMessages(c.id).at(-1);
+          const msgs = getMessages(c.id);
+          const last = msgs.length > 0 ? msgs[msgs.length - 1] : undefined;
           return (
             <div key={c.id} className="p-3 rounded-xl border border-neutral-800 hover:border-neutral-700">
               <div className="text-sm text-neutral-400 mb-2">{new Date(c.createdAt).toLocaleString()}</div>
