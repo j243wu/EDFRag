@@ -43,7 +43,7 @@ export default function Page() {
     setInput('');
     setLoading(true);
     try {
-      const res = await askRag({ sessionId, question: userMsg.content });
+      const res = await askRag({ sessionId, query: userMsg.content });
       const assistantMsg: Message = {
         id: crypto.randomUUID(),
         role: 'assistant',
@@ -67,7 +67,7 @@ export default function Page() {
       <div className="flex-1 overflow-auto p-4">
         <div className="max-w-3xl mx-auto space-y-6">
           {messages.length === 0 && (
-            <div className="text-center text-neutral-400 mt-24">Start a conversation by asking a question…</div>
+            <div className="text-center text-neutral-400 mt-24">Start a conversation by asking a query…</div>
           )}
           {messages.map(m => (
             <div key={m.id} className="space-y-2">
@@ -101,7 +101,7 @@ export default function Page() {
               aria-label="Send"
             >Send</button>
           </div>
-          <div className="text-xs text-neutral-500 mt-2">Your question will be sent to AWS API Gateway & Lambda. Timeout set to 30s.</div>
+          <div className="text-xs text-neutral-500 mt-2">Your query will be sent to AWS API Gateway & Lambda. Timeout set to 30s.</div>
         </div>
       </div>
     </div>
