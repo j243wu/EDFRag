@@ -8,14 +8,14 @@ if (!API_URL) console.warn('NEXT_PUBLIC_API_GATEWAY_URL is not set.');
 if (!UPLOAD_INIT_URL) console.warn('NEXT_PUBLIC_UPLOAD_INIT_URL is not set.');
 if (!PROCESS_KB_URL) console.warn('NEXT_PUBLIC_PROCESS_KB_URL is not set.');
 
-export async function askRag({ sessionId, question }: { sessionId: string; question: string }): Promise<RagResponse> {
+export async function askRag({ sessionId, query }: { sessionId: string; query: string }): Promise<RagResponse> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 30000);
   try {
     const res = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId, question }),
+      body: JSON.stringify({ sessionId, query }),
       signal: controller.signal,
     });
     if (!res.ok) throw new Error(`API ${res.status}: ${await res.text()}`);
