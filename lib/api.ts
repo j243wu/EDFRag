@@ -20,7 +20,7 @@ export async function askRag({ sessionId, query }: { sessionId: string; query: s
     });
     if (!res.ok) throw new Error(`API ${res.status}: ${await res.text()}`);
     const data = await res.json();
-    return { text: data.text ?? '', sources: Array.isArray(data.sources) ? data.sources : [] };
+    return { text: data.answer ?? '', sources: Array.isArray(data.sources) ? data.sources : [] };
   } finally { clearTimeout(timeout); }
 }
 
