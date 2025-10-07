@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Upload-init Lambda + API Gateway to return presigned S3 PUT URLs for html files
+
+Globals:
+  Function:
+    Timeout: 10
+    Runtime: nodejs18.x
+
+Resources:
+  UploadInitFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handler.handler
+      CodeUri: ./
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - s3:PutObject
+                - s3:PutObjectAcl
+              Resource: arn:aws:s3:us-east-1:440744238215:accesspoint/edf-rag-kb/*
+      Environment:
+        Variables:
+          KEY_PREFIX: "htmls/"
+          S3_ACCESSPOINT_ARN: "arn:aws:s3:us-east-1:440744238215:accesspoint/edf-rag-kb"
+          URL_TTL_SECONDS: "900"
+
+  UploadInitApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      DefinitionBody:
+        swagger: '2.0'
+        info:
+          title: upload-init
+        paths:
+          /upload-init:
+            post:
+              x-amazon-apigateway-integration:
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${UploadInitFunction.Arn}/invocations
+                httpMethod: POST
+                type: aws_proxy
+      Cors:
+        AllowMethods: "POST,OPTIONS"
+        AllowHeaders: "Content-Type"
+
+Outputs:
+  UploadInitApiUrl:
+    Description: "Invoke URL for upload-init API"
+    Value: !Sub "https://${UploadInitApi}.execute-api.${AWS::Region}.amazonaws.com/prod/upload-init"

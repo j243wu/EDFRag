@@ -58,10 +58,10 @@ export default function KnowledgeBasePage() {
         setLog(prev => [...prev, `⚠️ ${failed.length} file(s) failed to upload.`]);
       }
 
-      // 3) Trigger processing Lambda for uploaded items
-      setStatus('processing');
-      setLog(prev => [...prev, 'Triggering vectorization Lambda…']);
-      await startKbProcessing(succeeded.map(s => ({ s3Key: s.s3Key, name: s.name })));
+      // // 3) Trigger processing Lambda for uploaded items
+      // setStatus('processing');
+      // setLog(prev => [...prev, 'Triggering vectorization Lambda…']);
+      // await startKbProcessing(succeeded.map(s => ({ s3Key: s.s3Key, name: s.name })));
 
       setStatus('done');
       setLog(prev => [...prev, '✅ Processing complete. You can use the app now.']);
