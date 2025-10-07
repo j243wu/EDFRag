@@ -43,7 +43,15 @@ export default function Page() {
     setInput('');
     setLoading(true);
     try {
+      // insert a temporary typing message so the UI shows a typing indicator
+      const typingId = `typing-${crypto.randomUUID()}`;
+      const typingMsg: Message = { id: typingId, role: 'assistant', content: '__typing__', ts: Date.now() };
+      persistMessage(sessionId, typingMsg);
+      setMessages(prev => [...prev, typingMsg]);
+
       const res = await askRag({ sessionId, query: userMsg.content });
+
+      // replace typing message with real assistant response
       const assistantMsg: Message = {
         id: crypto.randomUUID(),
         role: 'assistant',
@@ -51,12 +59,19 @@ export default function Page() {
         ts: Date.now(),
         sources: res.sources ?? [],
       };
+      // update persisted messages: remove typing, add assistant
+      const existing = getMessages(sessionId).filter(m => m.id !== typingId);
+      existing.push(assistantMsg);
+      // overwrite storage for session (simple approach: clear and persist messages)
+      // (we have simple storage helpers, so use persistMessage for assistant and rely on getMessages above)
       persistMessage(sessionId, assistantMsg);
-      setMessages(prev => [...prev, assistantMsg]);
+      setMessages(prev => prev.map(m => (m.id === typingId ? assistantMsg : m)));
     } catch (e: any) {
-      const err: Message = { id: crypto.randomUUID(), role: 'assistant', content: `Request failed: ${e?.message ?? e}`, ts: Date.now() };
-      persistMessage(sessionId, err);
-      setMessages(prev => [...prev, err]);
+      // replace typing message with error message
+      const errMsg: Message = { id: crypto.randomUUID(), role: 'assistant', content: `Request failed: ${e?.message ?? e}`, ts: Date.now() };
+      // remove typing from persisted messages if present
+      persistMessage(sessionId, errMsg);
+      setMessages(prev => prev.map(m => (m.content === '__typing__' ? errMsg : m)));
     } finally {
       setLoading(false);
     }

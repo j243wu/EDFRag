@@ -76,7 +76,7 @@ export default function KnowledgeBasePage() {
   return (
     <div className="p-6 max-w-3xl mx-auto space-y-4">
       <h1 className="text-xl font-semibold">Knowledge Base</h1>
-      <p className="text-neutral-300">Upload a batch of <code>.html</code> files. They will be stored in S3 and then processed into your vector database by a Lambda.</p>
+      <p className="text-neutral-300">Upload a batch of <code>.html</code> files. They will be stored in S3 Bukcet and then processed into EDF Knowledge Base.</p>
 
       <div className="border border-neutral-800 rounded-2xl p-4 space-y-3 bg-neutral-900">
         <input
