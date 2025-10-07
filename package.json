@@ -8,6 +8,8 @@
     "start": "npx serve -s out -l 3000"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.901.0",
+    "@aws-sdk/s3-request-presigner": "^3.901.0",
     "next": "14.2.5",
     "react": "18.3.1",
     "react-dom": "18.3.1",
