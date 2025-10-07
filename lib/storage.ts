@@ -29,6 +29,18 @@ export function persistMessage(id: string, msg: Message) {
   localStorage.setItem(messagesKey(id), JSON.stringify(cur));
 }
 
+export function replaceMessage(id: string, oldMsgId: string, newMsg: Message) {
+  const cur = getMessages(id);
+  const idx = cur.findIndex(m => m.id === oldMsgId);
+  if (idx >= 0) {
+    // replace in-place to preserve order
+    cur[idx] = newMsg;
+  } else {
+    cur.push(newMsg);
+  }
+  localStorage.setItem(messagesKey(id), JSON.stringify(cur));
+}
+
 const ACTIVE_KEY = 'rag-active-session-id';
 export function getActiveSessionId(): string | null {
   return localStorage.getItem(ACTIVE_KEY);

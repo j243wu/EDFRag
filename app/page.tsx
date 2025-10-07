@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChatMessage } from '@/components/ChatMessage';
 import { SourceList } from '@/components/SourceList';
-import { createChatIfMissing, getActiveSessionId, getMessages, persistMessage, setActiveSessionId } from '@/lib/storage';
+import { createChatIfMissing, getActiveSessionId, getMessages, persistMessage, setActiveSessionId, replaceMessage } from '@/lib/storage';
 import { askRag } from '@/lib/api';
 import type { Message } from '@/lib/types';
 
@@ -42,16 +42,17 @@ export default function Page() {
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setLoading(true);
+    let typingId: string | null = null;
     try {
       // insert a temporary typing message so the UI shows a typing indicator
-      const typingId = `typing-${crypto.randomUUID()}`;
+      typingId = `typing-${crypto.randomUUID()}`;
       const typingMsg: Message = { id: typingId, role: 'assistant', content: '__typing__', ts: Date.now() };
       persistMessage(sessionId, typingMsg);
       setMessages(prev => [...prev, typingMsg]);
 
       const res = await askRag({ sessionId, query: userMsg.content });
 
-      // replace typing message with real assistant response
+  // replace typing message with real assistant response
       const assistantMsg: Message = {
         id: crypto.randomUUID(),
         role: 'assistant',
@@ -59,19 +60,14 @@ export default function Page() {
         ts: Date.now(),
         sources: res.sources ?? [],
       };
-      // update persisted messages: remove typing, add assistant
-      const existing = getMessages(sessionId).filter(m => m.id !== typingId);
-      existing.push(assistantMsg);
-      // overwrite storage for session (simple approach: clear and persist messages)
-      // (we have simple storage helpers, so use persistMessage for assistant and rely on getMessages above)
-      persistMessage(sessionId, assistantMsg);
+      // update persisted messages (replace typing placeholder)
+      if (typingId) replaceMessage(sessionId, typingId, assistantMsg);
       setMessages(prev => prev.map(m => (m.id === typingId ? assistantMsg : m)));
     } catch (e: any) {
-      // replace typing message with error message
+  // replace typing message with error message
       const errMsg: Message = { id: crypto.randomUUID(), role: 'assistant', content: `Request failed: ${e?.message ?? e}`, ts: Date.now() };
-      // remove typing from persisted messages if present
-      persistMessage(sessionId, errMsg);
-      setMessages(prev => prev.map(m => (m.content === '__typing__' ? errMsg : m)));
+      if (typingId) replaceMessage(sessionId, typingId, errMsg);
+      setMessages(prev => prev.map(m => (m.id === typingId ? errMsg : m)));
     } finally {
       setLoading(false);
     }
